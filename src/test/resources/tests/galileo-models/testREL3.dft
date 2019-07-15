@@ -1,0 +1,2 @@
+toplevel "BE1";
+"BE1" lambda=2.0E-4 dorm=0.0;

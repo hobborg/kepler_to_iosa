@@ -1,0 +1,4 @@
+toplevel "SPARE1";
+"SPARE1" wsp "BE1" "BE2";
+"BE1" lambda=2.0E-4 dorm=0.0 EXT_repairPDF=erlang(1,3);
+"BE2" lambda=1.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2) EXT_repairPDF=erlang(1,3);

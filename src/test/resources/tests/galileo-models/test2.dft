@@ -1,0 +1,4 @@
+toplevel "AND1";
+"AND1" and "BE1" "BE2";
+"BE1" EXT_failPDF=erlang(1,2) dorm=0.0;
+"BE2" EXT_failPDF=erlang(1,5) dorm=0.0;

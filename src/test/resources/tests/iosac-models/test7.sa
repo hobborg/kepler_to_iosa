@@ -1,0 +1,99 @@
+//Type: Basic event; Original name: BE3; Assigned unique id: 0
+module BE_0
+  fc_0 : clock;
+  inform_0 : [0..2] init 0;
+  brokenFlag_0 : [0..2] init 0;
+
+  [] brokenFlag_0==2 @ fc_0-> (brokenFlag_0'=0) & (fc_0'=exponential(0.00020));
+  [] brokenFlag_0==0 @ fc_0 -> (inform_0'=1) & (brokenFlag_0'=1);
+  
+
+  [f_0!!] inform_0==1 -> (inform_0'=0);
+endmodule
+
+//Type: Basic event; Original name: BE1; Assigned unique id: 1
+module BE_1
+  fc_1 : clock;
+  inform_1 : [0..2] init 0;
+  brokenFlag_1 : [0..2] init 0;
+
+  [] brokenFlag_1==2 @ fc_1-> (brokenFlag_1'=0) & (fc_1'=exponential(0.00020));
+  [] brokenFlag_1==0 @ fc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  
+
+  [f_1!!] inform_1==1 -> (inform_1'=0);
+endmodule
+
+//Type: OR gate; Original name: BE1_FDEP; Assigned unique id: 2
+module OR_2
+  informf_2: bool init false;
+  informu_2: bool init false;
+  count_2: [0..2] init 0;
+
+  [f_0??] count_2==0 -> (count_2'=1) & (informf_2'=true);
+  [f_0??] count_2==1 -> (count_2'=2);
+  [f_1??] count_2==0 -> (count_2'=1) & (informf_2'=true);
+  [f_1??] count_2==1 -> (count_2'=2);
+
+  [u_0??] count_2==1 -> (count_2'=0) & (informu_2'=true);
+  [u_0??] count_2==2 -> (count_2'=1);
+  [u_1??] count_2==1 -> (count_2'=0) & (informu_2'=true);
+  [u_1??] count_2==2 -> (count_2'=1);
+
+  [f_2!!] informf_2 & count_2>0 -> (informf_2'=false);
+  [u_2!!] informu_2 & count_2==0 -> (informu_2'=false);
+endmodule
+
+//Type: Basic event; Original name: BE2; Assigned unique id: 3
+module BE_3
+  fc_3 : clock;
+  inform_3 : [0..2] init 0;
+  brokenFlag_3 : [0..2] init 0;
+
+  [] brokenFlag_3==2 @ fc_3-> (brokenFlag_3'=0) & (fc_3'=exponential(0.00010));
+  [] brokenFlag_3==0 @ fc_3 -> (inform_3'=1) & (brokenFlag_3'=1);
+  
+
+  [f_3!!] inform_3==1 -> (inform_3'=0);
+endmodule
+
+//Type: OR gate; Original name: BE2_FDEP; Assigned unique id: 4
+module OR_4
+  informf_4: bool init false;
+  informu_4: bool init false;
+  count_4: [0..2] init 0;
+
+  [f_0??] count_4==0 -> (count_4'=1) & (informf_4'=true);
+  [f_0??] count_4==1 -> (count_4'=2);
+  [f_3??] count_4==0 -> (count_4'=1) & (informf_4'=true);
+  [f_3??] count_4==1 -> (count_4'=2);
+
+  [u_0??] count_4==1 -> (count_4'=0) & (informu_4'=true);
+  [u_0??] count_4==2 -> (count_4'=1);
+  [u_3??] count_4==1 -> (count_4'=0) & (informu_4'=true);
+  [u_3??] count_4==2 -> (count_4'=1);
+
+  [f_4!!] informf_4 & count_4>0 -> (informf_4'=false);
+  [u_4!!] informu_4 & count_4==0 -> (informu_4'=false);
+endmodule
+
+//Type: OR gate; Original name: OR1; Assigned unique id: 5
+module OR_5
+  informf_5: bool init false;
+  informu_5: bool init false;
+  count_5: [0..2] init 0;
+
+  [f_2??] count_5==0 -> (count_5'=1) & (informf_5'=true);
+  [f_2??] count_5==1 -> (count_5'=2);
+  [f_4??] count_5==0 -> (count_5'=1) & (informf_5'=true);
+  [f_4??] count_5==1 -> (count_5'=2);
+
+  [u_2??] count_5==1 -> (count_5'=0) & (informu_5'=true);
+  [u_2??] count_5==2 -> (count_5'=1);
+  [u_4??] count_5==1 -> (count_5'=0) & (informu_5'=true);
+  [u_4??] count_5==2 -> (count_5'=1);
+
+  [f_5!!] informf_5 & count_5>0 -> (informf_5'=false);
+  [u_5!!] informu_5 & count_5==0 -> (informu_5'=false);
+endmodule
+

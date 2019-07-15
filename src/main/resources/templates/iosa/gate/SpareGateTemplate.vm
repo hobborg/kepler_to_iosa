@@ -1,0 +1,49 @@
+//Type: spare gate; Original name: ${name}; Assigned unique id: ${id}
+module SPARE_${id}
+  state_${id}: [0..4] init 0; // on main, request, wait, on spare, broken
+  inform_${id}: [0..2] init 0; // Inform when spare is broken or start to work again
+  release_${id}: [-${muxIdList.size()}..${muxIdList.size()}] init 0; // 0 nothing, positive values to inform about release, negative values to inform about accept
+  idx_${id}: [1..${muxIdList.size()}] init 1;//Current spare used or candidate to be used
+
+  [f_${primaryId}??] state_${id}==0 -> (state_${id}'=1) & (idx_${id}'=1); // main fails
+  [u_${primaryId}??] state_${id}==4 -> (state_${id}'=0) & (inform_${id}'=2); // main gets repaired and spare was broken
+#foreach( $idBasicEvent in $basicEventIdList )
+  [u_${primaryId}??] state_${id}==3 & idx_${id}==${velocityCount} -> (state_${id}'=0) & (idx_${id}'=1) & (release_${id}'=${velocityCount}); // main get repaired and gate was using a SBE
+#end
+
+#foreach( $idBasicEvent in $basicEventIdList )
+  [f_${idBasicEvent}??] state_${id}==3 & idx_${id}==${velocityCount} -> (release_${id}'=${velocityCount}); //Currently used spare fails!
+#end
+
+#foreach( $idMux in $muxIdList )
+  [rq_${idMux}_${id}!!] state_${id}==1 & idx_${id}==${velocityCount} -> (state_${id}'=2); // Request spare number ${velocityCount}
+#end
+
+#foreach( $idMux in $muxIdList )
+  [asg_${idMux}_${id}??] state_${id}==0 | state_${id}==1 | state_${id}==3 -> (release_${id}'=${velocityCount}); // we are assigned spare ${velocityCount} but we dont want it
+  [asg_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (release_${id}'=-${velocityCount}) & (state_${id}'=3); // we are assigned spare ${velocityCount}
+  [asg_${idMux}_${id}??] state_${id}==4 -> (release_${id}'=-${velocityCount}) & (state_${id}'=3) & (idx_${id}'=${velocityCount}) & (inform_${id}'=2); // we 'get fixed' thanks to a spare assignment
+#end
+  
+#foreach( $idMux in $muxIdList )
+#set( $increasedVelocityCount = $velocityCount + 1 )
+#if ($velocityCount < ${muxIdList.size()})
+  [rj_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (idx_${id}'=${increasedVelocityCount}) & (state_${id}'=1); // they reject giving us spare ${velocityCount}
+#else
+  [rj_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (state_${id}'=4) & (idx_${id}'=1) & (inform_${id}'=1);
+#end 
+#end
+  
+#foreach( $idMux in $muxIdList )
+  [rel_${idMux}_${id}!!] release_${id}==${velocityCount} & (state_${id} != 3 | idx_${id} != ${velocityCount}) -> (release_${id}'= 0); // release spare ${velocityCount} when not wanted
+  [rel_${idMux}_${id}!!] release_${id}==${velocityCount} & state_${id} == 3 & idx_${id} == ${velocityCount} -> (release_${id}'= 0)  & (state_${id}'=1) & (idx_${id}'=1); // release spare ${velocityCount} when brakes and Im using it
+#end
+
+#foreach( $idMux in $muxIdList )
+  [acc_${idMux}_${id}!!] release_${id} ==-${velocityCount} -> (release_${id}'=0); 
+#end
+
+  [f_${id}!!] inform_${id} == 1 -> (inform_${id}'=0);
+  [u_${id}!!] inform_${id} == 2 -> (inform_${id}'=0);
+endmodule
+

@@ -1,0 +1,24 @@
+//In the conversion process, each n-inputs PAND is converted in n-1 2-inputs PAND
+//Type: PAND gate; Original name: ${name}; Assigned unique id: ${id}
+module PAND_${id}
+  fail_${id}[2]: bool init false;
+  inform_${id}: [0..2] init 0;
+  tPassed_${id}: bool init false;
+  broken_${id}: bool init false;
+
+  //This action keep listening for each clock expired in whole the model
+  [_?] -> (tPassed_${id}'=true);
+
+  [f_${firstChildId}??] tPassed_${id} -> (fail_${id}[0]'=true) & (tPassed_${id}'=false);
+  [f_${firstChildId}??] !tPassed_${id} & fail_${id}[1] -> (fail_${id}[0]'=true) & (inform_${id}'=1);
+  [f_${secondChildId}??] fail_${id}[0] -> (fail_${id}[1]'=true) & (inform_${id}'=1) & (tPassed_${id}'=false);
+  [f_${secondChildId}??] !fail_${id}[0] -> (fail_${id}[1]'=true) & (tPassed_${id}'=false);
+
+  [u_${firstChildId}??] -> (fail_${id}[0]'=false);
+  [u_${secondChildId}??] broken_${id} -> (fail_${id}[1]'=false) & (inform_${id}'=2);
+  [u_${secondChildId}??] !broken_${id} -> (fail_${id}[1]'=false);
+
+  [f_${id}!!] inform_${id}==1 -> (inform_${id}'=0) & (broken_${id}'=true);
+  [u_${id}!!] inform_${id}==2 -> (inform_${id}'=0) & (broken_${id}'= false);
+endmodule
+

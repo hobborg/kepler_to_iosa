@@ -1,0 +1,8 @@
+toplevel "SPARE";
+"SPARE" wsp "AND1" "BE4" "BE5";
+"AND1" and "BE1" "BE2" "BE3";
+"BE1" lambda=1.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2);
+"BE2" lambda=2.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2);
+"BE3" lambda=3.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2);
+"BE4" lambda=4.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2);
+"BE5" lambda=4.0E-4 dorm=0.0 EXT_dormPDF=erlang(1,2);

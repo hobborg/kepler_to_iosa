@@ -1,0 +1,70 @@
+//Type: Basic event; Original name: BE3; Assigned unique id: 1
+module BE_1
+  fc_1 : clock;
+  rc_1 : clock;
+  inform_1 : [0..2] init 0;
+  brokenFlag_1 : [0..2] init 0;
+
+  [] brokenFlag_1==0 @ fc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  [r_1??] brokenFlag_1==1 -> (brokenFlag_1'=2) & (rc_1'=erlang(1,5));
+  [] brokenFlag_1==2 @ rc_1 -> (inform_1'=2) & (brokenFlag_1'=0) & (fc_1'=exponential(0.00030));
+  
+
+  [f_1!!] inform_1==1 -> (inform_1'=0);
+  [u_1!!] inform_1==2 -> (inform_1'=0);
+endmodule
+
+//Type: Basic event; Original name: BE1; Assigned unique id: 0
+module BE_0
+  fc_0 : clock;
+  rc_0 : clock;
+  inform_0 : [0..2] init 0;
+  brokenFlag_0 : [0..2] init 0;
+
+  [] brokenFlag_0==0 @ fc_0 -> (inform_0'=1) & (brokenFlag_0'=1);
+  [r_0??] brokenFlag_0==1 -> (brokenFlag_0'=2) & (rc_0'=erlang(1,3));
+  [] brokenFlag_0==2 @ rc_0 -> (inform_0'=2) & (brokenFlag_0'=0) & (fc_0'=exponential(0.00020));
+  
+  [f_1??] brokenFlag_0==0 -> (inform_0'=1) & (brokenFlag_0'=1);
+
+  [f_0!!] inform_0==1 -> (inform_0'=0);
+  [u_0!!] inform_0==2 -> (inform_0'=0);
+endmodule
+
+//Type: Basic event; Original name: BE2; Assigned unique id: 2
+module BE_2
+  fc_2 : clock;
+  rc_2 : clock;
+  inform_2 : [0..2] init 0;
+  brokenFlag_2 : [0..2] init 0;
+
+  [] brokenFlag_2==0 @ fc_2 -> (inform_2'=1) & (brokenFlag_2'=1);
+  [r_2??] brokenFlag_2==1 -> (brokenFlag_2'=2) & (rc_2'=erlang(1,4));
+  [] brokenFlag_2==2 @ rc_2 -> (inform_2'=2) & (brokenFlag_2'=0) & (fc_2'=exponential(0.00010));
+  
+  [f_1??] brokenFlag_2==0 -> (inform_2'=1) & (brokenFlag_2'=1);
+
+  [f_2!!] inform_2==1 -> (inform_2'=0);
+  [u_2!!] inform_2==2 -> (inform_2'=0);
+endmodule
+
+//Type: OR gate; Original name: OR1; Assigned unique id: 3
+module OR_3
+  informf_3: bool init false;
+  informu_3: bool init false;
+  count_3: [0..2] init 0;
+
+  [f_0??] count_3==0 -> (count_3'=1) & (informf_3'=true);
+  [f_0??] count_3==1 -> (count_3'=2);
+  [f_2??] count_3==0 -> (count_3'=1) & (informf_3'=true);
+  [f_2??] count_3==1 -> (count_3'=2);
+
+  [u_0??] count_3==1 -> (count_3'=0) & (informu_3'=true);
+  [u_0??] count_3==2 -> (count_3'=1);
+  [u_2??] count_3==1 -> (count_3'=0) & (informu_3'=true);
+  [u_2??] count_3==2 -> (count_3'=1);
+
+  [f_3!!] informf_3 & count_3>0 -> (informf_3'=false);
+  [u_3!!] informu_3 & count_3==0 -> (informu_3'=false);
+endmodule
+

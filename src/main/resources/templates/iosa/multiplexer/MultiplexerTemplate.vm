@@ -1,0 +1,35 @@
+//Type: MUX with priority policy; Assigned name: ${name}; Assigned unique id: ${id}
+module MUX_${id}
+  queue_${id}[${associatedSparePortIds.size()}]: [0..3] init 0; // State of each spare gates: 0=idle, 1=requesting, 2=reject, 3=using
+  avail_${id}: bool init true; //true if the associated SBE is available
+  broken_${id}: bool init false; // false if the associated SBE is not broken
+  enable_${id}: [0..2] init 0; //used to inform the SBE if is dormant or active
+
+  //Communication from SBE to MUX about the state of the SBE
+  [f_${basicEventId}??] -> (broken_${id}'=true);
+  [u_${basicEventId}??] -> (broken_${id}'=false);
+
+  //Communication from MUX to SBE to inform it to be dormant or active
+  [a_${basicEventId}!!] enable_${id} == 1 -> (enable_${id}'=0);
+  [d_${basicEventId}!!] enable_${id} == 2 -> (enable_${id}'=0);
+
+  //Communication from multiplexers to spare gates. The relationship is many to many. We use the naming convention <action_name>_<id_from>_<id_to>
+#foreach( $associatedId in $associatedSparePortIds )
+  #set( $decresedVelocityCount = $velocityCount - 1 )  
+  #set($start = 0)
+  #set($end = $decresedVelocityCount - 1)
+  #set($range = [$end..$start])
+  [rq_${id}_${associatedId}??] queue_${id}[$decresedVelocityCount] == 0 & (broken_${id} | !avail_${id}) -> (queue_${id}[$decresedVelocityCount]' = 2);
+  [rq_${id}_${associatedId}??] queue_${id}[$decresedVelocityCount] == 0 & !broken_${id} & avail_${id} -> (queue_${id}[$decresedVelocityCount]' = 1);
+#if( $decresedVelocityCount > 0)  
+  [asg_${id}_${associatedId}!!] queue_${id}[$decresedVelocityCount]==1 #foreach( $i in $range ) & queue_${id}[$i]==0 #end & !broken_${id} & avail_${id} -> (queue_${id}[$decresedVelocityCount]' = 3) & (avail_${id}' = false);
+#else
+  [asg_${id}_${associatedId}!!] queue_${id}[$decresedVelocityCount]==1 & !broken_${id} & avail_${id} -> (queue_${id}[$decresedVelocityCount]' = 3) & (avail_${id}' = false);
+#end  
+  [rj_${id}_${associatedId}!!] queue_${id}[$decresedVelocityCount] == 2 -> (queue_${id}[$decresedVelocityCount]' = 1);
+  [rel_${id}_${associatedId}??] queue_${id}[$decresedVelocityCount] == 3 -> (queue_${id}[$decresedVelocityCount]' = 0) & (avail_${id}' = true) & (enable_${id}' = 2);  
+  [acc_${id}_${associatedId}??] -> (enable_${id}' = 1);
+#end
+
+endmodule
+

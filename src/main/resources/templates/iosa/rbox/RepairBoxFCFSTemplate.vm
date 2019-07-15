@@ -1,0 +1,24 @@
+//TODO something is not working in this template.... Check again
+//Type: Repair box with FCFS policy; Original name: ${name}; Assigned unique id: ${id}
+module RBOX_${id}
+  queue[n]: [0..n] init 0;
+  busy: bool init false;
+  r: [0..n] init n;
+  dummy: [0..0] init 0;
+	
+  [f0?] -> (dummy'= broken(queue,0));
+  ...
+  [fn-1?] -> (dummy'= broken(queue,n-1));
+	
+  //This output will be not used by other module, so its name is merely a placeholder
+  [dummy_output_${id}!!] fstexclude(queue,0) != -1 & r = n -> (r'=maxfrom(queue,0));
+	
+  [r0!!] !busy & r = 0 -> (busy'=true) & (queue[0]' = 0);
+  ...
+  [rn-1!!] !busy & r = n-1 -> (busy'=true) & (queue[n-1]' = 0);
+	
+  [u0?] -> (queue[0]'=false) & (busy'=false) & (r' = n);
+  ...
+  [un-1?] -> (queue[n-1]'=false) & (busy'=false) & (r' = n);
+endmodule
+

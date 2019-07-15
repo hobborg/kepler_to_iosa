@@ -1,0 +1,22 @@
+//Type: Repair box with priority policy; Original name: ${name}; Assigned unique id: ${id}
+module RBOX_${id}
+  brokenFlag_${id}[${childrenIdList.size()}]: bool init false;
+  busy_${id}: bool init false;
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [f_${idChild}??] -> (brokenFlag_${id}[$decresedVelocityCount]'=true);
+#end
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [r_${idChild}!!] !busy_${id} & fsteq(brokenFlag_${id},true) == $decresedVelocityCount -> (busy_${id}'=true);
+#end
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [u_${idChild}??] -> (brokenFlag_${id}[$decresedVelocityCount]'=false) & (busy_${id}'=false);
+#end
+
+endmodule
+

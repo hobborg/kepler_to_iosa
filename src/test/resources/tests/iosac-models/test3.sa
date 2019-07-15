@@ -1,0 +1,52 @@
+//Type: Basic event; Original name: BE1; Assigned unique id: 0
+module BE_0
+  fc_0 : clock;
+  rc_0 : clock;
+  inform_0 : [0..2] init 0;
+  brokenFlag_0 : [0..2] init 0;
+
+  [] brokenFlag_0==0 @ fc_0 -> (inform_0'=1) & (brokenFlag_0'=1);
+  [r_0??] brokenFlag_0==1 -> (brokenFlag_0'=2) & (rc_0'=erlang(1,3));
+  [] brokenFlag_0==2 @ rc_0 -> (inform_0'=2) & (brokenFlag_0'=0) & (fc_0'=erlang(1,2));
+  
+
+  [f_0!!] inform_0==1 -> (inform_0'=0);
+  [u_0!!] inform_0==2 -> (inform_0'=0);
+endmodule
+
+//Type: Basic event; Original name: BE2; Assigned unique id: 1
+module BE_1
+  fc_1 : clock;
+  rc_1 : clock;
+  inform_1 : [0..2] init 0;
+  brokenFlag_1 : [0..2] init 0;
+
+  [] brokenFlag_1==0 @ fc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  [r_1??] brokenFlag_1==1 -> (brokenFlag_1'=2) & (rc_1'=erlang(1,4));
+  [] brokenFlag_1==2 @ rc_1 -> (inform_1'=2) & (brokenFlag_1'=0) & (fc_1'=erlang(1,5));
+  
+
+  [f_1!!] inform_1==1 -> (inform_1'=0);
+  [u_1!!] inform_1==2 -> (inform_1'=0);
+endmodule
+
+//Type: AND gate; Original name: AND1; Assigned unique id: 2
+module AND_2
+  informf_2: bool init false;
+  informu_2: bool init false;
+  count_2: [0..2] init 0;
+
+  [f_0??] count_2==0 -> (count_2'=1);
+  [f_0??] count_2==1 -> (count_2'=2) & (informf_2'=true);
+  [f_1??] count_2==0 -> (count_2'=1);
+  [f_1??] count_2==1 -> (count_2'=2) & (informf_2'=true);
+
+  [u_0??] count_2==1 -> (count_2'=0);
+  [u_0??] count_2==2 -> (count_2'=1) & (informu_2'=true);
+  [u_1??] count_2==1 -> (count_2'=0);
+  [u_1??] count_2==2 -> (count_2'=1) & (informu_2'=true);
+
+  [f_2!!] informf_2 & count_2==2 -> (informf_2'=false);
+  [u_2!!] informu_2 & count_2<2 -> (informu_2'=false);
+endmodule
+

@@ -1,0 +1,6 @@
+toplevel "PAND1";
+"PAND1" pand "BE1" "BE2" "BE3" "BE4";
+"BE1" lambda=1.0E-4 dorm=0.0;
+"BE2" lambda=2.0E-4 dorm=0.0;
+"BE3" lambda=3.0E-4 dorm=0.0;
+"BE4" lambda=4.0E-4 dorm=0.0;

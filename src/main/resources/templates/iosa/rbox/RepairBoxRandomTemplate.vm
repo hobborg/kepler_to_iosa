@@ -1,0 +1,25 @@
+//Type: Repair box with random policy; Original name: ${name}; Assigned unique id: ${id}
+module RBOX_${id}
+  brokenFlag_${id}[${childrenIdList.size()}]: bool init false;
+  busy_${id}: bool init false;
+  r_${id}: [0..${childrenIdList.size()}] init ${childrenIdList.size()};
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [f_${idChild}??] -> (brokenFlag_${id}[$decresedVelocityCount]'=true);
+#end
+
+  [dummy_output_${id}!!] fsteq(brokenFlag_${id}, true) > -1 & !busy_${id} & r_${id} == ${childrenIdList.size()} -> (r_${id}'=rndeq(brokenFlag_${id}, true));
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [r_${idChild}!!] !busy_${id} & r_${id} == $decresedVelocityCount -> (busy_${id}'=true);
+#end
+
+#foreach( $idChild in $childrenIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [u_${idChild}??] -> (brokenFlag_${id}[$decresedVelocityCount]'=false) & (busy_${id}'=false) & (r_${id}' = ${childrenIdList.size()});
+#end
+
+endmodule
+

@@ -1,0 +1,9 @@
+toplevel "OR1";
+"OR1" or "SPARE1" "SPARE2";
+"SPARE1" wsp "P_BE1" "S_BE_1" "S_BE_2";
+"SPARE2" wsp "P_BE2" "S_BE_2" "S_BE_3";
+"P_BE1" EXT_failPDF=erlang(1,2);
+"P_BE2" EXT_failPDF=erlang(1,2);
+"S_BE_1" EXT_failPDF=erlang(2,2) EXT_dormPDF=erlang(1,2) EXT_repairPDF=erlang(1,3);
+"S_BE_2" EXT_failPDF=erlang(4,2) EXT_dormPDF=erlang(3,2) EXT_repairPDF=erlang(1,3);
+"S_BE_3" EXT_failPDF=erlang(6,2) EXT_dormPDF=erlang(5,2) EXT_repairPDF=erlang(1,3);

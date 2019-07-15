@@ -1,0 +1,10 @@
+
+const float t_limit = ${time_limit}; 
+
+module ReliabilityTimer
+  ReliabilityTimeOut: [0..2] init 0;
+  clkTO: clock;
+  [TOinit!!] ReliabilityTimeOut == 0 -> (ReliabilityTimeOut'=1) & (clkTO'=dirac(t_limit));
+  [] ReliabilityTimeOut==1 @ clkTO -> (ReliabilityTimeOut'=2);
+endmodule
+

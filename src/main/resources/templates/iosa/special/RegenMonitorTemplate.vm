@@ -1,0 +1,20 @@
+//Regeneration monitor: used to detect regeneration
+module REGEN_MONITOR
+  brokenFlag_RM[${BEIdList.size()}]: bool init false;
+  stop_sim: bool init false;//Used for the state reachability property
+  failure_occured_RM: bool init false;//Become true when the first fail to a BE occurs
+
+#foreach( $idBE in $BEIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [f_${idBE}??] -> (brokenFlag_RM[$decresedVelocityCount]'=true) & (failure_occured'= true);
+#end
+
+#foreach( $idBE in $BEIdList )
+#set( $decresedVelocityCount = $velocityCount - 1 )
+  [u_${idBE}??] -> (brokenFlag_RM[$decresedVelocityCount]'=false);
+#end
+
+  [regen!!] failure_occured_RM & fsteq(brokenFlag_RM,true) < 0 & !stop_sim -> (stop_sim'=true);
+
+endmodule
+

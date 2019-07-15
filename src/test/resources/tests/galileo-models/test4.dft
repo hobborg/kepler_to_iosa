@@ -1,0 +1,5 @@
+toplevel "AND1";
+"AND1" and "BE1" "BE2";
+"BE1" EXT_failPDF=erlang(1,2) dorm=0.0 EXT_repairPDF=erlang(1,3);
+"BE2" EXT_failPDF=erlang(1,5) dorm=0.0 EXT_repairPDF=erlang(1,4);
+"R1" repairbox_priority "BE1" "BE2";

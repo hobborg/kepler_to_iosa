@@ -1,0 +1,30 @@
+//In the conversion process, each n-inputs PAND is converted in n-1 2-inputs PAND
+//Type: PAND gate; Original name: ${name}; Assigned unique id: ${id}
+module PAND_${id}
+  f0_${id}: bool init false;
+  f1_${id}: bool init false;
+  st_${id}: [0..4] init 0; // up, inform fail, failed, inform up, unbreakable
+
+  //This action keep listening for each clock expired in whole the model
+  [_?] st_${id}==0 & f1_${id} & !f0_${id} -> (st_${id}'=4);
+
+  [f_${firstChildId}??] st_${id}==0 & !f0_${id} & !f1_${id}-> (f0_${id}'=true);
+  [f_${firstChildId}??] st_${id}==0 & !f0_${id} & f1_${id} -> (st_${id}'=1) & (f0_${id}'=true);
+  [f_${firstChildId}??] st_${id}!=0 & !f0_${id} -> (f0_${id}'=true);
+
+  [f_${secondChildId}??] st_${id}==0 & !f0_${id} & !f1_${id} -> (f1_${id}'=true);
+  [f_${secondChildId}??] st_${id}==0 & f0_${id} & !f1_${id} -> (st_${id}'=1) & (f1_${id}'=true);
+  [f_${secondChildId}??] st_${id}==3 & !f1_${id} -> (st_${id}'=2) & (f1_${id}'=true);
+  [f_${secondChildId}??] (st_${id}==1|st_${id}==2|st_${id}==4) & !f1_${id} -> (f1_${id}'=true);
+
+  [u_${firstChildId}??] st_${id}!=1 & f0_${id} -> (f0_${id}'=false);
+  [u_${firstChildId}??] st_${id}==1 & f0_${id} -> (st_${id}'=0) & (f0_${id}'=false);
+
+  [u_${secondChildId}??] (st_${id}==0|st_${id}==3) & f1_${id} -> (f1_${id}'=false);
+  [u_${secondChildId}??] (st_${id}==1|st_${id}==4) & f1_${id} -> (st_${id}'=0) & (f1_${id}'=false);
+  [u_${secondChildId}??] st_${id}==2 & f1_${id} -> (st_${id}'=3) & (f1_${id}'=false);
+
+  [f_${id}!!] st_${id}==1 -> (st_${id}'=2);
+  [u_${id}!!] st_${id}==3 -> (st_${id}'=0);
+endmodule
+

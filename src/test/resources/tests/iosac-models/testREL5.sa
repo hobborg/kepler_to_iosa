@@ -1,0 +1,70 @@
+//Type: Basic event; Original name: BE1; Assigned unique id: 0
+module BE_0
+  fc_0 : clock;
+  inform_0 : [0..2] init 0;
+  brokenFlag_0 : [0..2] init 0;
+
+  [] brokenFlag_0==2 @ fc_0-> (brokenFlag_0'=0) & (fc_0'=exponential(0.00020));
+  [] brokenFlag_0==0 @ fc_0 -> (inform_0'=1) & (brokenFlag_0'=1);
+  
+
+  [f_0!!] inform_0==1 -> (inform_0'=0);
+endmodule
+
+//Type: Basic event; Original name: BE2; Assigned unique id: 1
+module BE_1
+  fc_1 : clock;
+  inform_1 : [0..2] init 0;
+  brokenFlag_1 : [0..2] init 0;
+
+  [] brokenFlag_1==2 @ fc_1-> (brokenFlag_1'=0) & (fc_1'=exponential(0.00010));
+  [] brokenFlag_1==0 @ fc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  
+
+  [f_1!!] inform_1==1 -> (inform_1'=0);
+endmodule
+
+//In the conversion process, each n-inputs PAND is converted in n-1 2-inputs PAND
+//Type: PAND gate; Original name: PAND1_level_1; Assigned unique id: 2
+module PAND_2
+  f0_2: bool init false;
+  f1_2: bool init false;
+  st_2: [0..4] init 0; // up, inform fail, failed, inform up, unbreakable
+
+  //This action keep listening for each clock expired in whole the model
+  [_?] st_2==0 & f1_2 & !f0_2 -> (st_2'=4);
+
+  [f_0??] st_2==0 & !f0_2 & !f1_2-> (f0_2'=true);
+  [f_0??] st_2==0 & !f0_2 & f1_2 -> (st_2'=1) & (f0_2'=true);
+  [f_0??] st_2!=0 & !f0_2 -> (f0_2'=true);
+
+  [f_1??] st_2==0 & !f0_2 & !f1_2 -> (f1_2'=true);
+  [f_1??] st_2==0 & f0_2 & !f1_2 -> (st_2'=1) & (f1_2'=true);
+  [f_1??] st_2==3 & !f1_2 -> (st_2'=2) & (f1_2'=true);
+  [f_1??] (st_2==1|st_2==2|st_2==4) & !f1_2 -> (f1_2'=true);
+
+  [u_0??] st_2!=1 & f0_2 -> (f0_2'=false);
+  [u_0??] st_2==1 & f0_2 -> (st_2'=0) & (f0_2'=false);
+
+  [u_1??] (st_2==0|st_2==3) & f1_2 -> (f1_2'=false);
+  [u_1??] (st_2==1|st_2==4) & f1_2 -> (st_2'=0) & (f1_2'=false);
+  [u_1??] st_2==2 & f1_2 -> (st_2'=3) & (f1_2'=false);
+
+  [f_2!!] st_2==1 -> (st_2'=2);
+  [u_2!!] st_2==3 -> (st_2'=0);
+endmodule
+
+
+const float t_limit = 5.5; 
+
+module ReliabilityTimer
+  ReliabilityTimeOut: [0..2] init 0;
+  clkTO: clock;
+  [TOinit!!] ReliabilityTimeOut == 0 -> (ReliabilityTimeOut'=1) & (clkTO'=dirac(t_limit));
+  [] ReliabilityTimeOut==1 @ clkTO -> (ReliabilityTimeOut'=2);
+endmodule
+
+properties
+  P( ReliabilityTimeOut<2  U st_2==2  ) //Reliability property
+endproperties
+

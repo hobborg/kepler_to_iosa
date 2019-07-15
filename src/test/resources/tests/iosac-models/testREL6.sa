@@ -1,0 +1,109 @@
+//Type: Basic event; Original name: BE1; Assigned unique id: 0
+module BE_0
+  fc_0 : clock;
+  rc_0 : clock;
+  inform_0 : [0..2] init 0;
+  brokenFlag_0 : [0..2] init 0;
+
+  [] brokenFlag_0==0 @ fc_0 -> (inform_0'=1) & (brokenFlag_0'=1);
+  [r_0??] brokenFlag_0==1 -> (brokenFlag_0'=2) & (rc_0'=erlang(1,3));
+  [] brokenFlag_0==2 @ rc_0 -> (inform_0'=2) & (brokenFlag_0'=0) & (fc_0'=exponential(0.00020));
+  
+
+  [f_0!!] inform_0==1 -> (inform_0'=0);
+  [u_0!!] inform_0==2 -> (inform_0'=0);
+endmodule
+
+//Type: MUX with priority policy; Assigned name: MUX_for_BE2; Assigned unique id: 3
+module MUX_3
+  queue_3[1]: [0..3] init 0; // State of each spare gates: 0=idle, 1=requesting, 2=reject, 3=using
+  avail_3: bool init true; //true if the associated SBE is available
+  broken_3: bool init false; // false if the associated SBE is not broken
+  enable_3: [0..2] init 0; //used to inform the SBE if is dormant or active
+
+  //Communication from SBE to MUX about the state of the SBE
+  [f_1??] -> (broken_3'=true);
+  [u_1??] -> (broken_3'=false);
+
+  //Communication from MUX to SBE to inform it to be dormant or active
+  [a_1!!] enable_3 == 1 -> (enable_3'=0);
+  [d_1!!] enable_3 == 2 -> (enable_3'=0);
+
+  //Communication from multiplexers to spare gates. The relationship is many to many. We use the naming convention <action_name>_<id_from>_<id_to>
+  [rq_3_2??] queue_3[0] == 0 & (broken_3 | !avail_3) -> (queue_3[0]' = 2);
+  [rq_3_2??] queue_3[0] == 0 & !broken_3 & avail_3 -> (queue_3[0]' = 1);
+  [asg_3_2!!] queue_3[0]==1 & !broken_3 & avail_3 -> (queue_3[0]' = 3) & (avail_3' = false);
+  [rj_3_2!!] queue_3[0] == 2 -> (queue_3[0]' = 1);
+  [rel_3_2??] queue_3[0] == 3 -> (queue_3[0]' = 0) & (avail_3' = true) & (enable_3' = 2);  
+  [acc_3_2??] -> (enable_3' = 1);
+
+endmodule
+
+//Type: Basic event; Original name: BE2; Assigned unique id: 1
+module BE_1
+  fc_1 : clock;
+  dfc_1 : clock;
+  rc_1 : clock;
+  inform_1 : [0..2] init 0;
+  active_1 : bool init false;
+  brokenFlag_1 : [0..2] init 0;
+
+  [a_1??] !active_1 -> (active_1'=true) & (fc_1'=exponential(0.00010));
+  [d_1??] active_1 & brokenFlag_1 == 0 -> (active_1'=false) & (dfc_1'=erlang(1,2));
+  [d_1??] active_1 & brokenFlag_1 != 0 -> (active_1'=false);
+  
+  [] active_1 & brokenFlag_1==0 @ fc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  [] !active_1 & brokenFlag_1==0 @ dfc_1 -> (inform_1'=1) & (brokenFlag_1'=1);
+  [r_1??] brokenFlag_1==1 -> (brokenFlag_1'=2) & (rc_1'=erlang(1,3));
+  [] active_1 & brokenFlag_1==2 @ rc_1 -> (inform_1'=2) & (brokenFlag_1'=0) & (fc_1'=exponential(0.00010));
+  [] !active_1 & brokenFlag_1==2 @ rc_1 -> (inform_1'=2) & (brokenFlag_1'=0) & (dfc_1'=erlang(1,2));
+  
+
+  [f_1!!] inform_1==1 -> (inform_1'=0);
+  [u_1!!] inform_1==2 -> (inform_1'=0);
+endmodule
+
+//Type: spare gate; Original name: SPARE1; Assigned unique id: 2
+module SPARE_2
+  state_2: [0..4] init 0; // on main, request, wait, on spare, broken
+  inform_2: [0..2] init 0; // Inform when spare is broken or start to work again
+  release_2: [-1..1] init 0; // 0 nothing, positive values to inform about release, negative values to inform about accept
+  idx_2: [1..1] init 1;//Current spare used or candidate to be used
+
+  [f_0??] state_2==0 -> (state_2'=1) & (idx_2'=1); // main fails
+  [u_0??] state_2==4 -> (state_2'=0) & (inform_2'=2); // main gets repaired and spare was broken
+  [u_0??] state_2==3 & idx_2==1 -> (state_2'=0) & (idx_2'=1) & (release_2'=1); // main get repaired and gate was using a SBE
+
+  [f_1??] state_2==3 & idx_2==1 -> (release_2'=1); //Currently used spare fails!
+
+  [rq_3_2!!] state_2==1 & idx_2==1 -> (state_2'=2); // Request spare number 1
+
+  [asg_3_2??] state_2==0 | state_2==1 | state_2==3 -> (release_2'=1); // we are assigned spare 1 but we dont want it
+  [asg_3_2??] state_2==2 & idx_2==1 -> (release_2'=-1) & (state_2'=3); // we are assigned spare 1
+  [asg_3_2??] state_2==4 -> (release_2'=-1) & (state_2'=3) & (idx_2'=1) & (inform_2'=2); // we 'get fixed' thanks to a spare assignment
+  
+  [rj_3_2??] state_2==2 & idx_2==1 -> (state_2'=4) & (idx_2'=1) & (inform_2'=1);
+  
+  [rel_3_2!!] release_2==1 & (state_2 != 3 | idx_2 != 1) -> (release_2'= 0); // release spare 1 when not wanted
+  [rel_3_2!!] release_2==1 & state_2 == 3 & idx_2 == 1 -> (release_2'= 0)  & (state_2'=1) & (idx_2'=1); // release spare 1 when brakes and Im using it
+
+  [acc_3_2!!] release_2 ==-1 -> (release_2'=0); 
+
+  [f_2!!] inform_2 == 1 -> (inform_2'=0);
+  [u_2!!] inform_2 == 2 -> (inform_2'=0);
+endmodule
+
+
+const float t_limit = 5.5; 
+
+module ReliabilityTimer
+  ReliabilityTimeOut: [0..2] init 0;
+  clkTO: clock;
+  [TOinit!!] ReliabilityTimeOut == 0 -> (ReliabilityTimeOut'=1) & (clkTO'=dirac(t_limit));
+  [] ReliabilityTimeOut==1 @ clkTO -> (ReliabilityTimeOut'=2);
+endmodule
+
+properties
+  P( ReliabilityTimeOut<2  U state_2==4  ) //Reliability property
+endproperties
+
