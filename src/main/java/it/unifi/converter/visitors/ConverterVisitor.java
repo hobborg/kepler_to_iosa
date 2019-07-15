@@ -200,7 +200,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
      * NOTE1: In the latter case, we check only if the second input to the spare gate is the specified input since the first one is the FDEP trigger.
      * This means that order is important in this case!
      * NOTE2: We don't need to handle the case of a gate as spare input not due to a FDEP since they are not supported at all by the current implementation.
-     * @see GalileoFiles#checkStructure()
+     * @see  it.unifi.converter.model.dft.GalileoFiles#checkStructure(TreeNode)
      * 
      * @return null if not a spare input, otherwise return the id
      */
@@ -214,7 +214,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
             if(node instanceof TreePort){
                 TreePort gate = (TreePort) node;
                 if(!(gate instanceof OrPort) || gate.getInputs().size() != 2)
-                    throw new InternalError("Something wrong! Expecting an OR gate with two inputs as input to the spare gate " + spareGate.getName());
+                    throw new InternalError("Something went wrong! Expecting an OR gate with two inputs as input to the SPARE gate " + spareGate.getName());
                 if(gate.getInputs().get(1).equals(be)){
                     throw new UnsupportedOperationException("FDEP applied to spare gate input is not currently supported!");
                 }

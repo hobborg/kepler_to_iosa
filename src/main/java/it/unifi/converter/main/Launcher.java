@@ -51,9 +51,9 @@ public class Launcher {
     private final static HelpFormatter formatter = new HelpFormatter();
     private final static CommandLineParser parser = new DefaultParser();
     private final static Options options = definitionCLI();
-    private final static String HELP_CMD_SYNTAX = "dft2iosac INPUT_PATH OUTPUT_PATH";
+    private final static String HELP_CMD_SYNTAX = "java -jar THIS_JAR_FILE [options*] INPUT_PATH OUTPUT_PATH";
     private final static String HELP_HEADER = "Options:";
-    private final static String HELP_FOOTER = "Example usage: dft2iosac in.dft out.sa -r=10.5";
+    private final static String HELP_FOOTER = "Example usage: java -jar THIS_JAR_FILE -r=7.35 in.dft out.sa";
     
 
     public static void main(String[] args){
@@ -67,17 +67,17 @@ public class Launcher {
         try {
             cmd = parser.parse(options, args);
             if(cmd.getArgList().size() != 2)
-                throw new ParseException("you should specify an input galile file and an output file");
+                throw new ParseException("Please specify an input Galileo file and an output file path");
             if(cmd.hasOption('r')){//Ugly way to check if 'r' value is a Float... Perhaps Apache common-cli is not the best choice
                 try{
                     timeLimit = Float.parseFloat(cmd.getOptionValue('r'));
                 }catch(NumberFormatException e){
-                    throw new ParseException("reliability argument should be a float");
+                    throw new ParseException("Reliability argument should be a float");
                 }
             }
             if(cmd.hasOption('i')){
                 if(!cmd.getOptionValue('i').equals("true") && !cmd.getOptionValue('i').equals("false"))
-                    throw new ParseException("importance argument should be a boolean");
+                    throw new ParseException("Importance argument should be a boolean");
                 normalizeComposedImportanceFunction = Boolean.parseBoolean(cmd.getOptionValue('i'));
             }
                 
