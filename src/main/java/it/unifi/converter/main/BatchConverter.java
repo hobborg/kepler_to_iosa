@@ -5,6 +5,7 @@
 //  Copyright 2018-
 //  Authors:
 //  - Marco Biagi <marcobiagiing@gmail.com> (Universita di Firenze)
+//  - Carlos E. Budde <c.e.budde@utwente.nl> (Universiteit Twente)
 //
 //------------------------------------------------------------------------------
 //

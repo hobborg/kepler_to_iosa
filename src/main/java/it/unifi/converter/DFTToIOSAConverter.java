@@ -5,6 +5,7 @@
 //  Copyright 2018-
 //  Authors:
 //  - Marco Biagi <marcobiagiing@gmail.com> (Universita di Firenze)
+//  - Carlos E. Budde <c.e.budde@utwente.nl> (Universiteit Twente)
 //
 //------------------------------------------------------------------------------
 //
@@ -49,7 +50,7 @@ import it.unifi.converter.model.dft.DFT;
 import it.unifi.converter.model.dft.FDEPRemoverVisitor;
 import it.unifi.converter.model.dft.PANDSimplifierVisitor;
 import it.unifi.converter.model.dft.TreeNode;
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.utils.MaxImportanceEvaluator;
 import it.unifi.converter.visitors.CompositionalImportanceFunctionFIG;
 import it.unifi.converter.visitors.ConverterVisitor;
@@ -141,7 +142,7 @@ public class DFTToIOSAConverter {
     private static Set<Long> getAllBEs(Map<TreeNode, Long> assignedId) {
         Set<Long> BEIdList = new LinkedHashSet<>();
         for (TreeNode node : assignedId.keySet()) {
-            if(node instanceof BasicEvent)
+            if(node instanceof BasicElement)
                 BEIdList.add(assignedId.get(node));
         }
         return BEIdList;

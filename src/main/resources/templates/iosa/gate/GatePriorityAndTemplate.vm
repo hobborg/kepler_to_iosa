@@ -1,11 +1,11 @@
-//In the conversion process, each n-inputs PAND is converted in n-1 2-inputs PAND
-//Type: PAND gate; Original name: ${name}; Assigned unique id: ${id}
-module PAND_${id}
+// PAND gate / ID: ${id} / Galileo name: "${name}"
+module PAND_${id}     // NOTE: an n-ary PAND is cascaded into n-1 binary PANDs
+//
   f0_${id}: bool init false;
   f1_${id}: bool init false;
-  st_${id}: [0..4] init 0; // up, inform fail, failed, inform up, unbreakable
+  st_${id}: [0..4] init 0;  // 0:"up", 1:"inform fail", 2:"failed", 3:"inform up", 4:"unbreakable"
 
-  //This action keep listening for each clock expired in whole the model
+  // Did time pass? This joker-action catches the expiration of any clock
   [_?] st_${id}==0 & f1_${id} & !f0_${id} -> (st_${id}'=4);
 
   [f_${firstChildId}??] st_${id}==0 & !f0_${id} & !f1_${id}-> (f0_${id}'=true);
@@ -26,5 +26,6 @@ module PAND_${id}
 
   [f_${id}!!] st_${id}==1 -> (st_${id}'=2);
   [u_${id}!!] st_${id}==3 -> (st_${id}'=0);
+//
 endmodule
 

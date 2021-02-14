@@ -5,6 +5,7 @@
 //  Copyright 2018-
 //  Authors:
 //  - Marco Biagi <marcobiagiing@gmail.com> (Universita di Firenze)
+//  - Carlos E. Budde <c.e.budde@utwente.nl> (Universiteit Twente)
 //
 //------------------------------------------------------------------------------
 //
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import it.unifi.converter.exceptions.MalformedGalileoFileException;
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.event.distributions.Distribution;
 import it.unifi.converter.model.dft.event.distributions.Exponential;
 import it.unifi.converter.model.dft.event.distributions.LogNormal;
@@ -108,7 +109,7 @@ class GalileoFiles {
     /**
      * Given the path of a DFT specified in a Galileo format, create an in memory representation of the DFT
      * and return its root
-     * @param path of the Galileo file
+     * @param galileoFilePath of the Galileo file
      * @return root of the in memory representation of the DFT
      * @throws IOException 
      * @throws MalformedGalileoFileException 
@@ -146,7 +147,7 @@ class GalileoFiles {
             if(current instanceof SparePort){
                 SparePort spareGate = (SparePort)current;
                 for (TreeNode treeNode : spareGate.getSpareInputs()) {
-                    if(!(treeNode instanceof BasicEvent)){
+                    if(!(treeNode instanceof BasicElement)){
                         throw new UnsupportedOperationException("Spare gate, with spare inputs not basic event not supported.  Gate: " + current.getName() + " input: " + treeNode.getName());
                     }
                 }
@@ -359,7 +360,7 @@ class GalileoFiles {
         }
     }
     
-    private static BasicEvent buildBasicEvent(String line) throws MalformedGalileoFileException{
+    private static BasicElement buildBasicEvent(String line) throws MalformedGalileoFileException{
         if(line.indexOf(PROB_PARAMETER_LABEL) != -1)
             throw new UnsupportedOperationException("Discrete probability basic event are not supported since IOSA is a continuos time model!\n" + line);
         
@@ -389,7 +390,7 @@ class GalileoFiles {
                 throw new MalformedGalileoFileException("Malformed basic event, specify only a distribution!\n" + line);
             
             double lambda = Double.parseDouble(getParameterValue(line, EXP_LAMBDA_PARAMETER_LABEL));
-            return new BasicEvent(name, dorm, new Exponential(lambda), repairPDF, dormancyPDF);
+            return new BasicElement(name, dorm, new Exponential(lambda), repairPDF, dormancyPDF);
             
         }else if(line.indexOf(WEIBULL_RATE_PARAMETER_LABEL) != -1 && line.indexOf(WEIBULL_SHAPE_PARAMETER_LABEL) != -1 ){//Weibull case
             //A single distribution type should be specified
@@ -398,7 +399,7 @@ class GalileoFiles {
             
             double rate = Double.parseDouble(getParameterValue(line, WEIBULL_RATE_PARAMETER_LABEL));
             double shape = Double.parseDouble(getParameterValue(line, WEIBULL_SHAPE_PARAMETER_LABEL));
-            return new BasicEvent(name, dorm, new Weibull(rate, shape), repairPDF, dormancyPDF);
+            return new BasicElement(name, dorm, new Weibull(rate, shape), repairPDF, dormancyPDF);
             
         }else if(line.indexOf(LOGNORMAL_MEAN_PARAMETER_LABEL) != -1  && line.indexOf(LOGNORMAL_SD_PARAMETER_LABEL) != -1 ){//Log-normal case
             //A single distribution type should be specified
@@ -407,14 +408,14 @@ class GalileoFiles {
             
             double mean = Double.parseDouble(getParameterValue(line, LOGNORMAL_MEAN_PARAMETER_LABEL));
             double sd = Double.parseDouble(getParameterValue(line, LOGNORMAL_SD_PARAMETER_LABEL));
-            return new BasicEvent(name, dorm, new LogNormal(mean, sd), repairPDF, dormancyPDF);
+            return new BasicElement(name, dorm, new LogNormal(mean, sd), repairPDF, dormancyPDF);
         }else if(line.indexOf(EXTENSION_FAIL_PDF) != -1){//Other distribution case
             //A single distribution type should be specified
             if(line.indexOf(EXP_LAMBDA_PARAMETER_LABEL) != -1|| line.indexOf(WEIBULL_RATE_PARAMETER_LABEL) != -1 || line.indexOf(WEIBULL_SHAPE_PARAMETER_LABEL) != -1|| line.indexOf(LOGNORMAL_MEAN_PARAMETER_LABEL) != -1 || line.indexOf(LOGNORMAL_SD_PARAMETER_LABEL) != -1)
                 throw new MalformedGalileoFileException("Malformed basic event, specify only a distribution!\n" + line);
             
             String description = getParameterValue(line, EXTENSION_FAIL_PDF);
-            return new BasicEvent(name, dorm, new OtherDistribution(description), repairPDF, dormancyPDF);
+            return new BasicElement(name, dorm, new OtherDistribution(description), repairPDF, dormancyPDF);
         }else{//Error
             throw new MalformedGalileoFileException("Basic event without a valid distribution!\n" + line);
         }

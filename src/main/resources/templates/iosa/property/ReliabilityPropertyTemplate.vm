@@ -1,2 +1,2 @@
 
-  P( ReliabilityTimeOut<2  U ${condition_fail_root}  ) //Reliability property
+  P( ReliabilityTimeOut<2  U ${condition_fail_root} )  // transient property, aka RELIABILITY

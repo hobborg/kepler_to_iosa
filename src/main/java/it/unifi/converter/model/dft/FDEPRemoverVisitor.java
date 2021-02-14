@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -80,7 +80,7 @@ public class FDEPRemoverVisitor implements TreeNodeVisitor{
     }
     
     @Override
-    public void visit(BasicEvent n) {
+    public void visit(BasicElement n) {
         //If dependent node are present, this node is already been converted!
         if(convertedNodes.containsKey(n))
             return;
@@ -89,7 +89,7 @@ public class FDEPRemoverVisitor implements TreeNodeVisitor{
         List<FailDependencyPort> deps2 = getListFailDependancy(n);
         //If no return it as is
         if(deps.isEmpty()){
-            BasicEvent newBE = new BasicEvent(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
+            BasicElement newBE = new BasicElement(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
             convertedNodes.put(n, newBE);
             originalBEs.put(n, newBE);
             return;
@@ -104,7 +104,7 @@ public class FDEPRemoverVisitor implements TreeNodeVisitor{
             inputs.add(convertedNodes.get(dep.getTriggerInput()));
         }
         //Add BE
-        BasicEvent newBE = new BasicEvent(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
+        BasicElement newBE = new BasicElement(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
         inputs.add(newBE);
         
         fdepOrPort.setInputs(inputs);
@@ -118,7 +118,7 @@ public class FDEPRemoverVisitor implements TreeNodeVisitor{
             throw new UnsupportedOperationException("BE " + n.getName() + " has both FDEP and FXDEP. We are not sure that this case is corrrectly handled...");        
     }
     
-    private List<FunctionalDependencyPort> getListFunctionalDependancy(BasicEvent n){
+    private List<FunctionalDependencyPort> getListFunctionalDependancy(BasicElement n){
         List<FunctionalDependencyPort> deps = new ArrayList<>();
         for (FunctionalDependencyPort fdepPort : originalDFT.getFunctionalDependencyPorts()) {
             if(fdepPort.getAffectedNodes().contains(n))
@@ -127,7 +127,7 @@ public class FDEPRemoverVisitor implements TreeNodeVisitor{
         return deps;
     }
 
-    private List<FailDependencyPort> getListFailDependancy(BasicEvent n){
+    private List<FailDependencyPort> getListFailDependancy(BasicElement n){
         List<FailDependencyPort> deps = new ArrayList<>();
         for (FailDependencyPort fdepPort : originalDFT.getFailDependencyPorts()) {
             if(fdepPort.getAffectedNodes().contains(n))

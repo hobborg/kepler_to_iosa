@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -77,11 +77,11 @@ public class PANDSimplifierVisitor implements TreeNodeVisitor{
     }
     
     @Override
-    public void visit(BasicEvent n) {
+    public void visit(BasicElement n) {
         //If dependent node are present, this node is already been converted!
         if(convertedNodes.containsKey(n))
             return;
-        BasicEvent newBE = new BasicEvent(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
+        BasicElement newBE = new BasicElement(n.getName(), n.getDormancyFactor(), n.getFailureDistribution(), n.getRepairDistribution(), n.getDormancyDistribution());
         convertedNodes.put(n, newBE);
                 
     }

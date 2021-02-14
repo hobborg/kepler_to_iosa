@@ -43,7 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import it.unifi.converter.model.dft.FormatVisitor;
 import it.unifi.converter.model.dft.TreeNode;
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -80,7 +80,7 @@ public class CompositionalImportanceFunctionFIG  implements FormatVisitor{
     }
     
     @Override
-    public String visit(BasicEvent n) {
+    public String visit(BasicElement n) {
         return BE_PREFIX + assignedId.get(n);
     }
 
@@ -242,7 +242,7 @@ public class CompositionalImportanceFunctionFIG  implements FormatVisitor{
         result += MAX_FUNCTION + "(";
         result += binaryOperation(AND_OPERATOR, inputs);
         result +=",(" + gateMultiplier;
-        result += "*(" + gateName + "=="+maxValue+"? 1 : 0)))";
+        result += "*(" + gateName + "=="+maxValue+"?1:0)))";
         return result;
     }
     

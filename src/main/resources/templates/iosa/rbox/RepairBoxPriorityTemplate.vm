@@ -1,5 +1,6 @@
-//Type: Repair box with priority policy; Original name: ${name}; Assigned unique id: ${id}
+// REPAIR-BOX: ARBITRARY priority / Galileo name: "${name}" / IOSA id: ${id}
 module RBOX_${id}
+//
   brokenFlag_${id}[${childrenIdList.size()}]: bool init false;
   busy_${id}: bool init false;
 
@@ -17,6 +18,6 @@ module RBOX_${id}
 #set( $decresedVelocityCount = $velocityCount - 1 )
   [u_${idChild}??] -> (brokenFlag_${id}[$decresedVelocityCount]'=false) & (busy_${id}'=false);
 #end
-
+//
 endmodule
 

@@ -1,54 +1,51 @@
-//Type: Basic event; Original name: ${name}; Assigned unique id: ${id}
+// Basic Element / ID: ${id} / Galileo name: "${name}"
 module BE_${id}
+//
   fc_${id} : clock;
 #if( $dormancyDistribution )
   dfc_${id} : clock;
 #end
-#if( $repairDistribution)
+#if( $repairDistribution )
   rc_${id} : clock;
 #end
   inform_${id} : [0..2] init 0;
-#if( $dormancyDistribution )##Describes if the event is dormant or active
+#if( $dormancyDistribution )  ## Whether the event is dormant or active
   active_${id} : bool init false;
 #end
   brokenFlag_${id} : [0..2] init 0;
 
-#if( $dormancyDistribution)
+#if( $dormancyDistribution )
   [a_${id}??] !active_${id} -> (active_${id}'=true) & (fc_${id}'=${failureDistribution});
   [d_${id}??] active_${id} & brokenFlag_${id} == 0 -> (active_${id}'=false) & (dfc_${id}'=${dormancyDistribution});
   [d_${id}??] active_${id} & brokenFlag_${id} != 0 -> (active_${id}'=false);
-  
 #end
-#if( $dormancyDistribution && $repairDistribution) 
+#if( $dormancyDistribution && $repairDistribution )
   [] active_${id} & brokenFlag_${id}==0 @ fc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
   [] !active_${id} & brokenFlag_${id}==0 @ dfc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
   [r_${id}??] brokenFlag_${id}==1 -> (brokenFlag_${id}'=2) & (rc_${id}'=${repairDistribution});
   [] active_${id} & brokenFlag_${id}==2 @ rc_${id} -> (inform_${id}'=2) & (brokenFlag_${id}'=0) & (fc_${id}'=${failureDistribution});
   [] !active_${id} & brokenFlag_${id}==2 @ rc_${id} -> (inform_${id}'=2) & (brokenFlag_${id}'=0) & (dfc_${id}'=${dormancyDistribution});
-  
-#elseif ($repairDistribution)
+#elseif( $repairDistribution )
   [] brokenFlag_${id}==0 @ fc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
   [r_${id}??] brokenFlag_${id}==1 -> (brokenFlag_${id}'=2) & (rc_${id}'=${repairDistribution});
   [] brokenFlag_${id}==2 @ rc_${id} -> (inform_${id}'=2) & (brokenFlag_${id}'=0) & (fc_${id}'=${failureDistribution});
-  
-#elseif ($dormancyDistribution)
+#elseif( $dormancyDistribution )
   [] active_${id} & brokenFlag_${id}==2 @ fc_${id}-> (brokenFlag_${id}'=0) & (fc_${id}'=${failureDistribution});
   [] !active_${id} & brokenFlag_${id}==2 @ dfc_${id}-> (brokenFlag_${id}'=0) & (dfc_${id}'=${dormancyDistribution});
   [] active_${id} & brokenFlag_${id}==0 @ fc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
   [] !active_${id} & brokenFlag_${id}==0 @ dfc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
-  
 #else
   [] brokenFlag_${id}==2 @ fc_${id}-> (brokenFlag_${id}'=0) & (fc_${id}'=${failureDistribution});
   [] brokenFlag_${id}==0 @ fc_${id} -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
-  
 #end
-#foreach( $triggerId in $triggerFailIds )## In this case there is an FDEP gate that can trigger the failure of that BE 
+#foreach( $triggerId in $triggerFailIds )  ## For each FDEP that can trigger this BE:
   [f_${triggerId}??] brokenFlag_${id}==0 -> (inform_${id}'=1) & (brokenFlag_${id}'=1);
 #end
 
   [f_${id}!!] inform_${id}==1 -> (inform_${id}'=0);
-#if ($repairDistribution)
+#if( $repairDistribution )
   [u_${id}!!] inform_${id}==2 -> (inform_${id}'=0);
 #end
+//
 endmodule
 

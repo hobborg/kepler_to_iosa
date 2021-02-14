@@ -1,2 +1,2 @@
   
-  S( ${condition_fail_root}  ) //Availability property
+  S( ${condition_fail_root} )  // steady-state property, aka AVAILABILITY

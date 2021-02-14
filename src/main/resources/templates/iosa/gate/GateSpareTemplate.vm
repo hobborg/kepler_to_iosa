@@ -1,0 +1,51 @@
+// SPARE gate / ID: ${id} / Galileo name: "${name}"
+module SPARE_${id}
+//
+  state_${id}:  [0..4] init 0;  // 0:"on main BE", 1:"request SBE", 2:"wait SBE", 3:"on SBE", 4:"broken"
+  inform_${id}: [0..2] init 0;  // Inform when SBE fails or gets repaired
+  release_${id}: [-${muxIdList.size()}..${muxIdList.size()}] init 0;  // 0:"nothing", >0:"inform release", <0:"inform accept"
+  idx_${id}: [1..${muxIdList.size()}] init 1;  // Current SBE used, or candidate to be used
+
+  [f_${primaryId}??] state_${id}==0 -> (state_${id}'=1) & (idx_${id}'=1);  // main BE fails
+  [u_${primaryId}??] state_${id}==4 -> (state_${id}'=0) & (inform_${id}'=2);  // main BE gets repaired and spare was broken
+#foreach( $idBasicEvent in $basicEventIdList )
+  [u_${primaryId}??] state_${id}==3 & idx_${id}==${velocityCount} -> (state_${id}'=0) & (idx_${id}'=1) & (release_${id}'=${velocityCount});  // main BE repaired, and gate was using an SBE
+#end
+
+#foreach( $idBasicEvent in $basicEventIdList )
+  [f_${idBasicEvent}??] state_${id}==3 & idx_${id}==${velocityCount} -> (release_${id}'=${velocityCount});  // Currently used SBE fails
+#end
+
+#foreach( $idMux in $muxIdList )
+  [rq_${idMux}_${id}!!] state_${id}==1 & idx_${id}==${velocityCount} -> (state_${id}'=2);  // Request SBE with id=${velocityCount}
+#end
+
+#foreach( $idMux in $muxIdList )
+  [asg_${idMux}_${id}??] state_${id}==0 | state_${id}==1 | state_${id}==3 -> (release_${id}'=${velocityCount});  // we are assigned the SBE=${velocityCount}, but we don't want it
+  [asg_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (release_${id}'=-${velocityCount}) & (state_${id}'=3);  // we are assigned the SBE=${velocityCount}, and we take it
+  [asg_${idMux}_${id}??] state_${id}==4 -> (release_${id}'=-${velocityCount}) & (state_${id}'=3) & (idx_${id}'=${velocityCount}) & (inform_${id}'=2);  // we switch from main BE to the SBE=${velocityCount}, so gate doesn't fail
+#end
+  
+#foreach( $idMux in $muxIdList )
+#set( $increasedVelocityCount = $velocityCount + 1 )
+#if ($velocityCount < ${muxIdList.size()})
+  [rj_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (idx_${id}'=${increasedVelocityCount}) & (state_${id}'=1);  // they reject giving us SBE=${velocityCount}
+#else
+  [rj_${idMux}_${id}??] state_${id}==2 & idx_${id}==${velocityCount} -> (state_${id}'=4) & (idx_${id}'=1) & (inform_${id}'=1);
+#end 
+#end
+  
+#foreach( $idMux in $muxIdList )
+  [rel_${idMux}_${id}!!] release_${id}==${velocityCount} & (state_${id} != 3 | idx_${id} != ${velocityCount}) -> (release_${id}'= 0);  // release SBE=${velocityCount} because we don't need it anymore
+  [rel_${idMux}_${id}!!] release_${id}==${velocityCount} & state_${id} == 3 & idx_${id} == ${velocityCount} -> (release_${id}'= 0)  & (state_${id}'=1) & (idx_${id}'=1);  // release SBE=${velocityCount} because it broke :'(
+#end
+
+#foreach( $idMux in $muxIdList )
+  [acc_${idMux}_${id}!!] release_${id} ==-${velocityCount} -> (release_${id}'=0); 
+#end
+
+  [f_${id}!!] inform_${id} == 1 -> (inform_${id}'=0);
+  [u_${id}!!] inform_${id} == 2 -> (inform_${id}'=0);
+//
+endmodule
+

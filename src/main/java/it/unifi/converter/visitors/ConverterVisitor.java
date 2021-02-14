@@ -50,7 +50,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import it.unifi.converter.model.dft.DFT;
 import it.unifi.converter.model.dft.TreeNode;
 import it.unifi.converter.model.dft.TreeNodeVisitor;
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -90,7 +90,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
     private VelocityEngine ve;
     private long counterId;
     private Map<TreeNode, Long> assignedNodeId;
-    private Map<BasicEvent, Long> assignedMuxId;//For each spare inputs basic event there is a mux. This map contain the id
+    private Map<BasicElement, Long> assignedMuxId;//For each spare inputs basic event there is a mux. This map contain the id
     private Set<TreeNode> convertedNodes; //We need to have a distinct set to keep track of already built node: assignedId is not sufficient since in some cases id is created before
     private DFT dft;
     
@@ -120,7 +120,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
     }
     
     @Override
-    public void visit(BasicEvent n) {
+    public void visit(BasicElement n) {
         //If dependent node are present, this node is already been converted!
         if(convertedNodes.contains(n))
             return;
@@ -145,7 +145,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         context.put("triggerFailIds", triggerFailIds);
 
         //Get the template and add context variables if necessary
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/be/BasicEventTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/be/BasicElementTemplate.vm" );
         
         if(isInputToSpare){
             //Each event has a single MUX and each MUX can be associated to more than one spare port
@@ -159,7 +159,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         t.merge( context, writer );
     }
 
-    private void buildMux(BasicEvent n, List<Long> associatedSparePortIds) {
+    private void buildMux(BasicElement n, List<Long> associatedSparePortIds) {
         //1- build the MUX
         long muxId = assignMuxIdIfRequired(n);
         long beId = assignedNodeId.get(n);
@@ -172,7 +172,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         t.merge( context, writer );
     }
 
-    private List<Long> getListAssociatedSparePorts(BasicEvent n) {
+    private List<Long> getListAssociatedSparePorts(BasicElement n) {
         Set<Long> associatedSparePortsIds = new HashSet<>();//Guarantee uniqueness
         //Search for spare port in the tree and check if specified basic event is an input
         Queue<TreeNode> toBeVisited = new LinkedList<>();
@@ -204,7 +204,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
      * 
      * @return null if not a spare input, otherwise return the id
      */
-    private Long isSpareInput(SparePort spareGate, BasicEvent be){
+    private Long isSpareInput(SparePort spareGate, BasicElement be){
         //Directly a spare input
         if(spareGate.getSpareInputs().contains(be)){
             long spareId = assignIdIfRequired(spareGate);
@@ -255,7 +255,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         long id = assignIdIfRequired(n);
         
         //Get the template
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/AndGateTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/GateAndTemplate.vm" );
         
         //Define the context variables
         VelocityContext context = new VelocityContext();
@@ -296,7 +296,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         long id = assignIdIfRequired(n);
         
         //Get the template
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/VotingGateTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/GateVotingTemplate.vm" );
         
         //Define the context variables
         VelocityContext context = new VelocityContext();
@@ -327,7 +327,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         long id = assignIdIfRequired(n);
         
         //Get the template
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/OrGateTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/GateOrTemplate.vm" );
         
         //Define the context variables
         VelocityContext context = new VelocityContext();
@@ -361,7 +361,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         long id = assignIdIfRequired(n);
         
         //Get the template
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/PriorityAndGateTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/GatePriorityAndTemplate.vm" );
         
         //Define the context variables
         VelocityContext context = new VelocityContext();
@@ -400,7 +400,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         long id = assignIdIfRequired(n);
         
         //Get the template
-        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/SpareGateTemplate.vm" );
+        Template t = ve.getTemplate( BASE_TEMPLATE_FOLDERS + "iosa/gate/GateSpareTemplate.vm" );
         
         //Define the context variables
         VelocityContext context = new VelocityContext();
@@ -460,7 +460,7 @@ public class ConverterVisitor implements TreeNodeVisitor{
         return id;
     }
     
-    private long assignMuxIdIfRequired(BasicEvent n){
+    private long assignMuxIdIfRequired(BasicElement n){
         if(assignedMuxId.get(n) != null)
             return assignedMuxId.get(n);
         

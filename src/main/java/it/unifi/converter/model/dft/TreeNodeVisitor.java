@@ -29,7 +29,7 @@
 
 package it.unifi.converter.model.dft;
 
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -41,7 +41,7 @@ import it.unifi.converter.model.dft.ports.repairbox.RepairBox;
 
 public interface TreeNodeVisitor {
 
-    public void visit(BasicEvent n);
+    public void visit(BasicElement n);
     public void visit(AndPort n);
     public void visit(FunctionalDependencyPort n);
     public void visit(FailDependencyPort n);

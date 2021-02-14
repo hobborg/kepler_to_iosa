@@ -1,5 +1,5 @@
-//TODO something is not working in this template.... Check again
-//Type: Repair box with FCFS policy; Original name: ${name}; Assigned unique id: ${id}
+// BUG: template not working...
+// REPAIR-BOX: FCFS repair-priority policy
 module RBOX_${id}
   queue[n]: [0..n] init 0;
   busy: bool init false;

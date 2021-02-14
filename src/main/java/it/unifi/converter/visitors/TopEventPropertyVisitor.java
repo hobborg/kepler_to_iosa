@@ -30,7 +30,7 @@
 package it.unifi.converter.visitors;
 
 import it.unifi.converter.model.dft.TreeNodeVisitor;
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -41,11 +41,10 @@ import it.unifi.converter.model.dft.ports.SparePort;
 import it.unifi.converter.model.dft.ports.repairbox.RepairBox;
 
 /**
- * This class allows, given the top element of a DFT, to build the a property expressed in the
- * FIG language, that represent the occurring of top event:
- * http://dsg.famaf.unc.edu.ar/fig/iosa
+ * From the TLE of a DFT, this class builds an IOSA property that matches
+ * the occurrence of that TLE: http://dsg.famaf.unc.edu.ar/fig/iosa
  * 
- * To use it, first visit the top node and than invoke the getter.
+ * Usage: visit the top node and than invoke the getter.
  * 
  * @author Marco Biagi
  *
@@ -66,7 +65,7 @@ public class TopEventPropertyVisitor implements TreeNodeVisitor{
     }
 
     @Override
-    public void visit(BasicEvent n) {
+    public void visit(BasicElement n) {
         topEventProperty = "brokenFlag_" + nodeId + " > 0";
     }
 

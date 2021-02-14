@@ -1,9 +1,12 @@
-//Type: Repair box on a single basic event; Original name: ${name}; Assigned unique id: ${id}
+// REPAIR-BOX for a single BE / Galileo name: "${name}" / IOSA id: ${id}
 module RBOX_${id}
+//
   broken_${id}: bool init false;
   inform_${id}: bool init false;
 
   [f_${childrenIdList[0]}??] -> (broken_${id}'=true) & (inform_${id}'=true);
   [r_${childrenIdList[0]}!!] inform_${id} -> (inform_${id}'=false);
   [u_${childrenIdList[0]}??] -> (broken_${id}'=false);
+//
 endmodule
+

@@ -1,32 +1,34 @@
-//Type: AND gate; Original name: ${name}; Assigned unique id: ${id}
-module AND_${id}
+// OR gate / ID: ${id} / Galileo name: "${name}"
+module OR_${id}
+//
   informf_${id}: bool init false;
   informu_${id}: bool init false;
   count_${id}: [0..${childrenIdList.size()}] init 0;
 
 #foreach( $idChild in $childrenIdList )
 #foreach( $innerCounterLoop in $childrenIdList )
+#if ($velocityCount > 1)
 #set( $decresedVelocityCount = $velocityCount - 1 )
-#if ($velocityCount < ${childrenIdList.size()})
   [f_${idChild}??] count_${id}==${decresedVelocityCount} -> (count_${id}'=${velocityCount});
 #else
-  [f_${idChild}??] count_${id}==${decresedVelocityCount} -> (count_${id}'=${velocityCount}) & (informf_${id}'=true);
+  [f_${idChild}??] count_${id}==0 -> (count_${id}'=1) & (informf_${id}'=true);
 #end  
 #end
 #end
 
 #foreach( $idChild in $childrenIdList )
 #foreach( $innerCounterLoop in $childrenIdList )
+#if ($velocityCount > 1)
 #set( $decresedVelocityCount = $velocityCount - 1 )
-#if ($velocityCount < ${childrenIdList.size()})
   [u_${idChild}??] count_${id}==${velocityCount} -> (count_${id}'=${decresedVelocityCount});
 #else
-  [u_${idChild}??] count_${id}==${velocityCount} -> (count_${id}'=${decresedVelocityCount}) & (informu_${id}'=true);
+  [u_${idChild}??] count_${id}==1 -> (count_${id}'=0) & (informu_${id}'=true);
 #end  
 #end
 #end
 
-  [f_${id}!!] informf_${id} & count_${id}==${childrenIdList.size()} -> (informf_${id}'=false);
-  [u_${id}!!] informu_${id} & count_${id}<${childrenIdList.size()} -> (informu_${id}'=false);
+  [f_${id}!!] informf_${id} & count_${id}>0 -> (informf_${id}'=false);
+  [u_${id}!!] informu_${id} & count_${id}==0 -> (informu_${id}'=false);
+//
 endmodule
 

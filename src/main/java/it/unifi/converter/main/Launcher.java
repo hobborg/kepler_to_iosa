@@ -5,6 +5,7 @@
 //  Copyright 2018-
 //  Authors:
 //  - Marco Biagi <marcobiagiing@gmail.com> (Universita di Firenze)
+//  - Carlos E. Budde <c.e.budde@utwente.nl> (Universiteit Twente)
 //
 //------------------------------------------------------------------------------
 //
@@ -41,11 +42,10 @@ import it.unifi.converter.DFTToIOSAConverter;
 import it.unifi.converter.model.dft.DFT;
 
 /**
- * Given the path of a DFT specified in the Galileo format, convert it to 
- * a IOSA-C specified in the FIG file format.
+ * Given the path of a DFT specified in the Galileo format,
+ * convert it to an IOSA specified in the FIG file format.
  * 
  * @author Marco Biagi
- *
  */
 public class Launcher {
     private final static HelpFormatter formatter = new HelpFormatter();

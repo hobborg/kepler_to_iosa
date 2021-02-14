@@ -34,14 +34,14 @@ import it.unifi.converter.model.dft.TreeNode;
 import it.unifi.converter.model.dft.TreeNodeVisitor;
 import it.unifi.converter.model.dft.event.distributions.Distribution;
 
-public class BasicEvent extends TreeNode{
+public class BasicElement extends TreeNode{
     
     private double dormancyFactor = 0.0;
     private Distribution failureDistribution;
     private Distribution dormancyDistribution;//Distribution when component is dormant
     private Distribution repairDistribution;
 
-    public BasicEvent(String name, double dormancyFactor, Distribution failureDistribution, Distribution repairDistribution, Distribution dormancyDistribution) {
+    public BasicElement(String name, double dormancyFactor, Distribution failureDistribution, Distribution repairDistribution, Distribution dormancyDistribution) {
         super(name);
         this.dormancyFactor = dormancyFactor;
         if(failureDistribution == null)
@@ -58,15 +58,15 @@ public class BasicEvent extends TreeNode{
         }
     }
     
-    public BasicEvent(String name, Distribution failureDistribution){
+    public BasicElement(String name, Distribution failureDistribution){
         this(name, 0.0, failureDistribution, null, null);
     }
     
-    public BasicEvent(String name, Distribution failureDistribution, Distribution repairDistribution) {
+    public BasicElement(String name, Distribution failureDistribution, Distribution repairDistribution) {
         this(name, 0.0, failureDistribution, repairDistribution, null);
     }
     
-    public BasicEvent(String name, double dormancyFactor, Distribution failureDistribution) {
+    public BasicElement(String name, double dormancyFactor, Distribution failureDistribution) {
         this(name, dormancyFactor, failureDistribution, null, null);
     }
 

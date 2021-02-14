@@ -1,8 +1,9 @@
-//Regeneration monitor: used to detect regeneration
+// Regeneration monitor: to detect regeneration times in Markovian systems
 module REGEN_MONITOR
+//
   brokenFlag_RM[${BEIdList.size()}]: bool init false;
-  stop_sim: bool init false;//Used for the state reachability property
-  failure_occured_RM: bool init false;//Become true when the first fail to a BE occurs
+  stop_sim: bool init false;            // For the state-reachability property
+  failure_occured_RM: bool init false;  // Becomes true when the first fail to a BE occurs
 
 #foreach( $idBE in $BEIdList )
 #set( $decresedVelocityCount = $velocityCount - 1 )
@@ -15,6 +16,6 @@ module REGEN_MONITOR
 #end
 
   [regen!!] failure_occured_RM & fsteq(brokenFlag_RM,true) < 0 & !stop_sim -> (stop_sim'=true);
-
+//
 endmodule
 

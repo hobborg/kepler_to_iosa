@@ -47,10 +47,10 @@ public class MaxImportanceEvaluator {
     }
 
     public static int evaluate(String expression){
-        //Remove underscores
+        // Remove underscores
         String functionStr = expression.replace("_", "");
         
-        //Assign value to BE
+        // Assign value to BE
         while(functionStr.indexOf("BE") != -1){
             int pos = functionStr.indexOf("BE");
             int stopPos = -1;
@@ -62,7 +62,7 @@ public class MaxImportanceEvaluator {
                 break;
             }
             if(stopPos == -1){
-                if(Character.isDigit(functionStr.charAt(functionStr.length() - 1))){//Special case, last char is a digit
+                if(Character.isDigit(functionStr.charAt(functionStr.length() - 1))){// Special case, last char is a digit
                     functionStr = functionStr.substring(0, pos) + BE_VALUE;
                 }else{
                     throw new InternalError("Unable to evaluate the max of the importance function for expression: " + expression + " pre-parsing error");
@@ -72,7 +72,7 @@ public class MaxImportanceEvaluator {
             }
         }
         
-        //Assign value to PAND
+        // Assign value to PAND
         while(functionStr.indexOf("PAND") != -1){
             int pos = functionStr.indexOf("PAND");
             int stopPos = -1;
@@ -88,9 +88,9 @@ public class MaxImportanceEvaluator {
             functionStr = functionStr.substring(0, pos) + PAND_VALUE + functionStr.substring(stopPos +1);
         }
         
-        //Assign value to SPARE
+        // Assign value to SPARE
         while(functionStr.indexOf("SPARE") != -1){
-            //Find token to be replaced
+            // Find token to be replaced
             int pos = functionStr.indexOf("SPARE");
             int stopPos = -1;
             for (int i = pos+5; i < functionStr.length(); i++) {
@@ -102,7 +102,7 @@ public class MaxImportanceEvaluator {
             if(stopPos == -1)
                 throw new InternalError("Unable to evaluate the max of the importance function for expression: " + functionStr + " pre-parsing error");
             
-            //Find value to replace the token
+            // Find value to replace the token
             int maxValue;
             int maxValueStopPos = -1;
             for (int i = stopPos + 3; i < functionStr.length(); i++) {
@@ -113,16 +113,16 @@ public class MaxImportanceEvaluator {
             }
             maxValue = Integer.parseInt(functionStr.substring(stopPos + 3, maxValueStopPos));
             
-            //Replace it
+            // Replace it
             functionStr = functionStr.substring(0, pos) + maxValue + functionStr.substring(stopPos +1);
         }
 
-        //Replace function with javascript functions
+        // Replace function with javascript functions
         functionStr = functionStr.replaceAll("summax", "sumKHigher");
         functionStr = functionStr.replaceAll("max", "Math.max");
         functionStr = functionStr.replaceAll("min", "Math.min");
         
-        //Add a function that allows to evaluate the special sumKHigher function
+        // Add a function that allows to evaluate the special sumKHigher function
         functionStr = "function sumKHigher() { "
                 + "var args = Array.prototype.slice.call(arguments);"
                 + "var k = args[0];"
@@ -136,7 +136,7 @@ public class MaxImportanceEvaluator {
                 + "};" + functionStr;
         
         try {
-            //Force to integer
+            // Force to integer
             String evaluation = engine.eval(functionStr).toString();
             return new BigDecimal(evaluation).intValue();
         } catch (ScriptException e) {

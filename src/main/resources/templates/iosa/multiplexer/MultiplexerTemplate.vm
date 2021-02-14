@@ -1,19 +1,21 @@
-//Type: MUX with priority policy; Assigned name: ${name}; Assigned unique id: ${id}
+// MULTIPLEXER for SPARE gates / ID: ${id} / Handles Galileo BE: "${name}"
 module MUX_${id}
-  queue_${id}[${associatedSparePortIds.size()}]: [0..3] init 0; // State of each spare gates: 0=idle, 1=requesting, 2=reject, 3=using
-  avail_${id}: bool init true; //true if the associated SBE is available
-  broken_${id}: bool init false; // false if the associated SBE is not broken
-  enable_${id}: [0..2] init 0; //used to inform the SBE if is dormant or active
+//
+  queue_${id}[${associatedSparePortIds.size()}]: [0..3] init 0;  // State of each SPARE gate is 0:"idle", 1:"requesting", 2:"rejected", 3:"using"
+  avail_${id}: bool init true;    // SBE is available
+  broken_${id}: bool init false;  // SBE is broken
+  enable_${id}: [0..2] init 0;    // SBE is 0:"nones", 1:"active", 2:"dormant"
 
-  //Communication from SBE to MUX about the state of the SBE
+  // Communication from SBE to MUX, about the state of the SBE
   [f_${basicEventId}??] -> (broken_${id}'=true);
   [u_${basicEventId}??] -> (broken_${id}'=false);
 
-  //Communication from MUX to SBE to inform it to be dormant or active
+  // Communication from MUX to SBE, to set its state as dormant or active
   [a_${basicEventId}!!] enable_${id} == 1 -> (enable_${id}'=0);
   [d_${basicEventId}!!] enable_${id} == 2 -> (enable_${id}'=0);
 
-  //Communication from multiplexers to spare gates. The relationship is many to many. We use the naming convention <action_name>_<id_from>_<id_to>
+  // Communication from MUX-es to SPARE gates (many-to-many relationship)
+  // Naming convention for labels: <action_name>_<id_from>_<id_to>
 #foreach( $associatedId in $associatedSparePortIds )
   #set( $decresedVelocityCount = $velocityCount - 1 )  
   #set($start = 0)
@@ -30,6 +32,6 @@ module MUX_${id}
   [rel_${id}_${associatedId}??] queue_${id}[$decresedVelocityCount] == 3 -> (queue_${id}[$decresedVelocityCount]' = 0) & (avail_${id}' = true) & (enable_${id}' = 2);  
   [acc_${id}_${associatedId}??] -> (enable_${id}' = 1);
 #end
-
+//
 endmodule
 

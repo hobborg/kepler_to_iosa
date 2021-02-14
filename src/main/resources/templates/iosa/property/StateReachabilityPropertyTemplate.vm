@@ -1,2 +1,2 @@
 
-  P( !stop_sim U ${condition_fail_root} ) //State-bounded reachability
+  P( !stop_sim U ${condition_fail_root} )  // State-bounded reachability

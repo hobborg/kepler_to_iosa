@@ -29,7 +29,7 @@
 
 package it.unifi.converter.model.dft;
 
-import it.unifi.converter.model.dft.event.BasicEvent;
+import it.unifi.converter.model.dft.event.BasicElement;
 import it.unifi.converter.model.dft.ports.AndPort;
 import it.unifi.converter.model.dft.ports.FailDependencyPort;
 import it.unifi.converter.model.dft.ports.FunctionalDependencyPort;
@@ -41,7 +41,7 @@ import it.unifi.converter.model.dft.ports.repairbox.RepairBox;
 
 public interface FormatVisitor {
     
-    public String visit(BasicEvent n);
+    public String visit(BasicElement n);
     public String visit(AndPort n);
     public String visit(FunctionalDependencyPort n);
     public String visit(FailDependencyPort n);
